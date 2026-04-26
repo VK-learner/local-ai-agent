@@ -8,14 +8,20 @@ from vector import retriver
 model = OllamaLLM(model='llama3.2:3b')
 
 template = """
-You are an expert in answering questions about a pizza restaurant
+You are an expert in answering questions about a pizza restaurant.
 
-Here are some relevant reviews: {reviews}
+Use ONLY the provided reviews to answer the question.
+If the answer is not in the reviews, say "I don't have enough information."
 
-Here is the question to answer: {question}
+Reviews:
+{reviews}
+
+Question:
+{question}
 """
+
 prompt = ChatPromptTemplate.from_template(template)
-chain = prompt | model # this takes our prompt and passes to our model through '|' pipe and returns to chain.
+chain = prompt | model
 
 while True:
     print("-------------------------------------------")
@@ -23,6 +29,16 @@ while True:
     if question == 'q':
         break
     
-    reviews = retriver.invoke(question)
-    result = chain.invoke({"reviews":reviews,"question":question})# it invokes to our llama3.2 llm 
-    print(result)
+    docs = retriver.invoke(question)
+    reviews = "\n\n".join([doc.page_content for doc in docs])
+
+    print("\n🤖 Answer:\n")
+
+    # 🔥 STREAMING OUTPUT
+    for chunk in chain.stream({
+        "reviews": reviews,
+        "question": question
+    }):
+        print(chunk, end="", flush=True)
+
+    print("\n")  # newline after response
