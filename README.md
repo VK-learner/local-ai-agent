@@ -1,4 +1,4 @@
-# 🍕 Local AI Agent (RAG with LangChain + Ollama)
+# 🍕 Local RAG Chatbot (LangChain + Ollama)
 
 A fully **local Retrieval-Augmented Generation (RAG) system** that answers questions about restaurant reviews using semantic search.
 
